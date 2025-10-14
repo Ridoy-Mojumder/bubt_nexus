@@ -1,75 +1,74 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React from 'react';
+import { Pressable, StyleSheet, View, Text, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function HomeScreen() {
+  const router = useRouter();
+
+  const features = [
+    { title: 'Student Info', route: '/student-info', emoji: '🎓' },
+    { title: 'Notice Board', route: '/notice', emoji: '📜' },
+    { title: 'Events', route: '/events', emoji: '🎉' },
+    { title: 'Class Routine', route: '/class-routine', emoji: '🕒' },
+    { title: 'Clubs & Activities', route: '/clubs', emoji: '🤝' },
+    { title: 'Results', route: '/results', emoji: '📊' },
+    { title: 'Job & Internship', route: '/jobs', emoji: '💼' },
+    { title: 'Alumni Network', route: '/alumni', emoji: '👥' },
+    { title: 'Authentication', route: '/auth', emoji: '🔑' }, // Added Auth Card
+  ];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/BUBT Nexus Logo Variations.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Hello This is BUBT NEXUS Team!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle"></ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      {/* Header */}
+      <LinearGradient
+        colors={['#0F2027', '#203A43', '#2C5364']}
+        style={styles.header}
+      >
+        <Text style={styles.headerTitle}>BUBT Nexus</Text>
+        <Text style={styles.headerSubtitle}>Your Campus, All in One App</Text>
+      </LinearGradient>
+
+      {/* Features Grid */}
+      <ScrollView contentContainerStyle={styles.cardGrid} showsVerticalScrollIndicator={false}>
+        {features.map((item) => (
+          <Pressable
+            key={item.route}
+            style={({ pressed }) => [
+              styles.card,
+              pressed && { transform: [{ scale: 0.97 }], shadowOpacity: 0.5 },
+            ]}
+            onPress={() => router.push(item.route)}
+          >
+            <Text style={styles.emoji}>{item.emoji}</Text>
+            <Text style={styles.cardTitle}>{item.title}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: { flex: 1, backgroundColor: '#0F172A' },
+  header: { paddingVertical: 40, alignItems: 'center', borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#00FFFF', marginBottom: 6 },
+  headerSubtitle: { fontSize: 14, color: '#B0E0E6', textAlign: 'center' },
+  cardGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, padding: 10 },
+  card: {
+    width: 150,
+    height: 150,
+    backgroundColor: '#1E293B',
+    borderRadius: 20,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    margin: 8,
+    shadowColor: '#00FFFF',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 6,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 320,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  emoji: { fontSize: 36, marginBottom: 10 },
+  cardTitle: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'center' },
 });
