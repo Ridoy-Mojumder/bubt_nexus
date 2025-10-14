@@ -1,28 +1,28 @@
-import React from 'react';
-import { Pressable, StyleSheet, View, Text, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import React from "react";
+import { Pressable, StyleSheet, View, Text, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function HomeScreen() {
   const router = useRouter();
 
   const features = [
-    { title: 'Student Info', route: '/student-info', emoji: '🎓' },
-    { title: 'Notice Board', route: '/notice', emoji: '📜' },
-    { title: 'Events', route: '/events', emoji: '🎉' },
-    { title: 'Class Routine', route: '/class-routine', emoji: '🕒' },
-    { title: 'Clubs & Activities', route: '/clubs', emoji: '🤝' },
-    { title: 'Results', route: '/results', emoji: '📊' },
-    { title: 'Job & Internship', route: '/jobs', emoji: '💼' },
-    { title: 'Alumni Network', route: '/alumni', emoji: '👥' },
-    { title: 'Authentication', route: '/auth', emoji: '🔑' }, // Added Auth Card
+    { title: "Student Info", route: "/student-info", emoji: "🎓" },
+    { title: "Notice Board", route: "/notice", emoji: "📜" },
+    { title: "Events", route: "/events", emoji: "🎉" },
+    { title: "Class Routine", route: "/class-routine", emoji: "🕒" },
+    { title: "Clubs & Activities", route: "/clubs", emoji: "🤝" },
+    { title: "Results", route: "/results", emoji: "📊" },
+    { title: "Job & Internship", route: "/jobs", emoji: "💼" },
+    { title: "Alumni Network", route: "/alumni", emoji: "👥" },
+    { title: "Authentication", route: "/auth/sign-in", emoji: "🔑" },
   ];
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <LinearGradient
-        colors={['#0F2027', '#203A43', '#2C5364']}
+        colors={["#0F2027", "#203A43", "#2C5364"]}
         style={styles.header}
       >
         <Text style={styles.headerTitle}>BUBT Nexus</Text>
@@ -30,7 +30,10 @@ export default function HomeScreen() {
       </LinearGradient>
 
       {/* Features Grid */}
-      <ScrollView contentContainerStyle={styles.cardGrid} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.cardGrid}
+        showsVerticalScrollIndicator={false}
+      >
         {features.map((item) => (
           <Pressable
             key={item.route}
@@ -50,25 +53,46 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  header: { paddingVertical: 40, alignItems: 'center', borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#00FFFF', marginBottom: 6 },
-  headerSubtitle: { fontSize: 14, color: '#B0E0E6', textAlign: 'center' },
-  cardGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, padding: 10 },
+  container: { flex: 1, backgroundColor: "#0F172A",},
+  header: {
+    paddingVertical: 40,
+    alignItems: "center",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#00FFFF",
+    marginBottom: 6,
+  },
+  headerSubtitle: { fontSize: 14, color: "#B0E0E6", textAlign: "center" },
+  cardGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 16,
+    padding: 10,
+  },
   card: {
     width: 150,
     height: 150,
-    backgroundColor: '#1E293B',
+    backgroundColor: "#1E293B",
     borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     margin: 8,
-    shadowColor: '#00FFFF',
+    shadowColor: "#00FFFF",
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
     elevation: 6,
   },
   emoji: { fontSize: 36, marginBottom: 10 },
-  cardTitle: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'center' },
+  cardTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+    textAlign: "center",
+  },
 });
