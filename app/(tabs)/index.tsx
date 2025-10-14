@@ -2,6 +2,7 @@ import React from "react";
 import { Pressable, StyleSheet, View, Text, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -25,6 +26,10 @@ export default function HomeScreen() {
         colors={["#0F2027", "#203A43", "#2C5364"]}
         style={styles.header}
       >
+        <Image
+            source={require("../../assets/images/all-images/logo.png")} 
+            style={styles.profileImage}
+          />
         <Text style={styles.headerTitle}>BUBT Nexus</Text>
         <Text style={styles.headerSubtitle}>Your Campus, All in One App</Text>
       </LinearGradient>
@@ -94,5 +99,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     textAlign: "center",
+  },
+
+  profileImage: {
+    width: 55,
+    height: 55,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: "#fff",
   },
 });
