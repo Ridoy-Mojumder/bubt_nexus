@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function ClassRoutine() {
   const routine = [
@@ -11,56 +11,65 @@ export default function ClassRoutine() {
   ];
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>🕒 Class Routine</Text>
-      {routine.map((item, index) => (
-        <View key={index} style={styles.card}>
-          <Text style={styles.day}>{item.day}</Text>
-          <Text style={styles.subject}>{item.subject}</Text>
-          <Text style={styles.time}>{item.time}</Text>
-        </View>
-      ))}
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>🕒 Class Routine</Text>
+
+        {routine.map((item, index) => (
+          <View key={index} style={styles.card}>
+            <Text style={styles.day}>{item.day}</Text>
+            <Text style={styles.subject}>{item.subject}</Text>
+            <Text style={styles.time}>{item.time}</Text>
+          </View>
+        ))}
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingVertical: 30,
+    backgroundColor: '#FFF8F8', // soft off-white with pink tint
+  },
   container: {
-    flex: 1,
-    backgroundColor: '#0F172A',
-    padding: 16,
+    width: '90%',
+    alignSelf: 'center',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#00FFFF',
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#ff9a9e',
+    marginBottom: 24,
     textAlign: 'center',
-    marginBottom: 20,
+    textShadowColor: 'rgba(255,154,158,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   card: {
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#00FFFF',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    shadowColor: '#ff9a9e',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 5,
-    elevation: 3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   day: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#B0E0E6',
+    color: '#ff9a9e',
   },
   subject: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#fff',
+    color: '#333',
     marginVertical: 4,
   },
   time: {
     fontSize: 14,
-    color: '#ccc',
+    color: '#555',
   },
 });

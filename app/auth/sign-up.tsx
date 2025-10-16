@@ -1,22 +1,25 @@
+import { auth } from "@/firebaseConfig";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Pressable,
   Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
   useWindowDimensions,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { Image } from "expo-image";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "@/firebaseConfig";
 
 export default function SignUp() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const isWide = width > 700; // show two-column layout on wide screens
+  const isWide = width > 700;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -52,62 +55,74 @@ export default function SignUp() {
 
   return (
     <View style={styles.root}>
-          <Text style={styles.title}>📝 Sign Up</Text>
-      <View style={[styles.container, isWide && styles.row]}>
-          {/* Left Side - Image */}
-          {isWide && (
-            <View style={styles.imageContainer}>
-              <Image
-                source={require("../../assets/images/all-images/internal-error.png")}
-                style={styles.image}
-                contentFit="contain"
-                transition={300}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1, width: "100%" }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={[styles.container, isWide && styles.row]}>
+            {/* Left Side - Image */}
+            {isWide && (
+              <View style={styles.imageContainer}>
+                <Image
+                  source={require("../../assets/images/all-images/internal-error.png")}
+                  style={styles.image}
+                  contentFit="contain"
+                  transition={300}
+                />
+              </View>
+            )}
+
+            {/* Right Side - Form */}
+            <View style={styles.formContainer}>
+              <Text style={styles.title}>Create Your Account</Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Full Name"
+                placeholderTextColor="#888"
+                value={name}
+                onChangeText={setName}
               />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#888"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#888"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+
+              <Pressable
+                style={[styles.button, loading && { opacity: 0.7 }]}
+                onPress={handleSignUp}
+                disabled={loading}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? "Creating..." : "Sign Up"}
+                </Text>
+              </Pressable>
+
+              <Pressable onPress={() => router.push("/auth/sign-in")}>
+                <Text style={styles.switchText}>
+                  Already have an account?{" "}
+                  <Text style={styles.linkText}>Sign In</Text>
+                </Text>
+              </Pressable>
             </View>
-          )}
-
-        {/* Right Side - Form */}
-        <View style={styles.formContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Full Name"
-            placeholderTextColor="#B0E0E6"
-            value={name}
-            onChangeText={setName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#B0E0E6"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#B0E0E6"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-
-          <Pressable
-            style={styles.button}
-            onPress={handleSignUp}
-            disabled={loading}
-          >
-            <Text style={styles.buttonText}>
-              {loading ? "Signing Up..." : "Sign Up"}
-            </Text>
-          </Pressable>
-
-          <Pressable onPress={() => router.push("/auth/sign-in")}>
-            <Text style={styles.switchText}>
-              Already have an account? Sign In
-            </Text>
-          </Pressable>
-        </View>
-      </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -115,14 +130,19 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#FAF9F6", // soft off-white
     justifyContent: "center",
     alignItems: "center",
   },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 40,
+  },
   container: {
-    flex: 1,
     width: "100%",
-    maxWidth: 1100,
+    maxWidth: 1000,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
@@ -138,49 +158,65 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 300,
+    height: 260,
   },
   formContainer: {
     flex: 1,
-    // backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: "#fff",
     borderRadius: 16,
-    padding: 24,
-    maxWidth: 500,
+    padding: 28,
+    maxWidth: 420,
     width: "100%",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
   },
   title: {
     fontSize: 26,
-    fontWeight: "bold",
-    color: "#00FFFF",
-    marginBottom: 24,
+    fontWeight: "700",
+    color: "#ff9a9e",
+    marginBottom: 28,
     textAlign: "center",
   },
   input: {
     width: "100%",
     height: 50,
-    borderColor: "#00FFFF",
+    borderColor: "#ff9a9e",
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 16,
-    color: "#fff",
+    color: "#333",
+    fontSize: 16,
     marginBottom: 14,
+    backgroundColor: "#FAFAFA",
   },
   button: {
-    height: 50,
-    borderRadius: 12,
-    backgroundColor: "#00FFFF",
+    height: 52,
+    borderRadius: 10,
+    backgroundColor: "#ff9a9e",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    marginTop: 6,
+    shadowColor: "#ff9a9e",
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
   },
   buttonText: {
-    color: "#0F172A",
-    fontWeight: "700",
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
   },
   switchText: {
-    color: "#B0E0E6",
-    marginTop: 10,
+    color: "#555",
+    marginTop: 14,
     textAlign: "center",
-    textDecorationLine: "underline",
+    fontSize: 14,
+  },
+  linkText: {
+    color: "#ff9a9e",
+    fontWeight: "600",
   },
 });
