@@ -1,11 +1,32 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Pressable, Linking } from 'react-native';
 
 export default function Alumni() {
   const demoAlumni = [
-    { name: 'Abdullah Jayed', dept: 'CSE', year: '2019', position: 'Software Engineer', company: 'ABC Ltd' },
-    { name: 'Sadia Rahman', dept: 'BBA', year: '2018', position: 'Marketing Manager', company: 'XYZ Corp' },
-    { name: 'Ridoy Mojumder', dept: 'CSE', year: '2024', position: 'Intern Developer', company: 'Tech Studio' },
+    { 
+      name: 'Abdullah Jayed', 
+      dept: 'CSE', 
+      year: '2019', 
+      position: 'Software Engineer', 
+      company: 'ABC Ltd',
+      futureWork: 'Planning to pursue higher studies in AI & Machine Learning.'
+    },
+    { 
+      name: 'Sadia Rahman', 
+      dept: 'BBA', 
+      year: '2018', 
+      position: 'Marketing Manager', 
+      company: 'XYZ Corp',
+      futureWork: 'Wants to start her own digital marketing agency.'
+    },
+    { 
+      name: 'Ridoy Mojumder', 
+      dept: 'CSE', 
+      year: '2024', 
+      position: 'Intern Developer', 
+      company: 'Tech Studio',
+      futureWork: 'Aiming to become a senior front-end engineer & build SaaS products.'
+    },
   ];
 
   return (
@@ -19,8 +40,15 @@ export default function Alumni() {
             <Text style={styles.details}>{alumni.dept} - Batch {alumni.year}</Text>
             <Text style={styles.details}>🏢 {alumni.position} @ {alumni.company}</Text>
 
-            {/* Placeholder for future contact / LinkedIn */}
-            <Pressable style={styles.contactButton}>
+            {/* Future Work */}
+            <Text style={styles.futureTitle}>🔮 Future Work / Plan</Text>
+            <Text style={styles.futureText}>{alumni.futureWork}</Text>
+
+            {/* LinkedIn Button */}
+            <Pressable 
+              style={styles.contactButton}
+              onPress={() => Linking.openURL('https://www.linkedin.com')}
+            >
               <Text style={styles.contactButtonText}>Contact / LinkedIn</Text>
             </Pressable>
           </View>
@@ -33,7 +61,7 @@ export default function Alumni() {
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingVertical: 30,
-    backgroundColor: '#FFF8F8', // soft off-white
+    backgroundColor: '#FFF8F8',
   },
   container: {
     width: '90%',
@@ -45,9 +73,6 @@ const styles = StyleSheet.create({
     color: '#ff9a9e',
     marginBottom: 24,
     textAlign: 'center',
-    textShadowColor: 'rgba(255,154,158,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
   card: {
     backgroundColor: '#fff',
@@ -71,6 +96,21 @@ const styles = StyleSheet.create({
     color: '#555',
     marginVertical: 2,
   },
+
+  // Future work style
+  futureTitle: {
+    marginTop: 10,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#333',
+  },
+  futureText: {
+    fontSize: 14,
+    color: '#666',
+    marginVertical: 4,
+    lineHeight: 20,
+  },
+
   contactButton: {
     marginTop: 10,
     backgroundColor: '#ff9a9e',

@@ -1,47 +1,87 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import { studentsResults } from "../../data/studentsResults";
+
+const { height, width } = Dimensions.get("window");
 
 export default function Results() {
-  const results = [
-    { subject: 'Mathematics', grade: 'A+', marks: '95/100' },
-    { subject: 'Physics', grade: 'A', marks: '90/100' },
-    { subject: 'CSE', grade: 'A+', marks: '98/100' },
-    { subject: 'English', grade: 'A', marks: '92/100' },
-    { subject: 'Chemistry', grade: 'B+', marks: '85/100' },
-  ];
+  const [searchId, setSearchId] = useState("");
+  const [student, setStudent] = useState(null);
 
-  const overallGPA = '4.8 / 5.0';
-  const bestSubject = 'CSE';
-  const improvementSubject = 'Chemistry';
+  const handleSearch = () => {
+    const cleanedId = searchId.trim().toUpperCase();
+    const found = studentsResults.find(
+      (s) => s.id.toUpperCase() === cleanedId
+    );
+    setStudent(found || null);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>📊 Exam Results</Text>
+        <Text style={styles.title}>🎓 Student Exam Results</Text>
 
-        {/* Overall GPA */}
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryText}>Overall GPA: {overallGPA}</Text>
-          <Text style={styles.summaryText}>Best Subject: {bestSubject}</Text>
-          <Text style={styles.summaryText}>Needs Improvement: {improvementSubject}</Text>
+        {/* Search Box */}
+        <View style={styles.searchWrapper}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Student ID (e.g., BUBT003)"
+            value={searchId}
+            onChangeText={setSearchId}
+            returnKeyType="search"
+          />
+          <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
+            <Text style={styles.searchBtnText}>Search</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Individual Results */}
-        {results.map((item, index) => (
-          <View key={index} style={styles.card}>
-            <Text style={styles.subject}>{item.subject}</Text>
-            <Text style={styles.grade}>Grade: {item.grade}</Text>
-            <Text style={styles.marks}>Marks: {item.marks}</Text>
-          </View>
-        ))}
+        {student ? (
+          <>
+            {/* Student Header Card */}
+            <View style={styles.profileCard}>
+              <Text style={styles.profileName}>{student.name}</Text>
+              <Text style={styles.profileId}>ID: {student.id}</Text>
+            </View>
 
-        {/* Teacher Remarks */}
-        <View style={styles.remarksCard}>
-          <Text style={styles.remarksTitle}>📝 Teacher Remarks</Text>
-          <Text style={styles.remarksText}>
-            Excellent performance overall. Focus on Chemistry to improve scores further.
-          </Text>
-        </View>
+            {/* Summary */}
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryTitle}>📘 Summary</Text>
+              <Text style={styles.summaryText}>Overall GPA: {student.overallGPA}</Text>
+              <Text style={styles.summaryText}>Best Subject: {student.bestSubject}</Text>
+              <Text style={styles.summaryText}>
+                Needs Improvement: {student.improvementSubject}
+              </Text>
+            </View>
+
+            {/* Individual Results */}
+            <Text style={styles.sectionTitle}>📚 Subject-wise Results</Text>
+            {student.results.map((item, index) => (
+              <View key={index} style={styles.card}>
+                <Text style={styles.subject}>{item.subject}</Text>
+                <Text style={styles.grade}>Grade: {item.grade}</Text>
+                <Text style={styles.marks}>Marks: {item.marks}</Text>
+              </View>
+            ))}
+
+            {/* Teacher Remarks */}
+            <View style={styles.remarksCard}>
+              <Text style={styles.remarksTitle}>📝 Teacher Remarks</Text>
+              <Text style={styles.remarksText}>{student.teacherRemarks}</Text>
+            </View>
+          </>
+        ) : (
+          searchId.length > 0 && (
+            <Text style={styles.notFound}>❌ No student found with ID "{searchId}"</Text>
+          )
+        )}
       </View>
     </ScrollView>
   );
@@ -50,83 +90,96 @@ export default function Results() {
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingVertical: 30,
-    backgroundColor: '#FFF8F8', // soft off-white with pinkish tint
+    backgroundColor: "#FCEFFB",
+    minHeight: height,
   },
   container: {
-    width: '90%',
-    alignSelf: 'center',
+    width: "90%",
+    alignSelf: "center",
   },
   title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#ff9a9e',
-    marginBottom: 24,
-    textAlign: 'center',
-    textShadowColor: 'rgba(255,154,158,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  summaryCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#E91E63",
     marginBottom: 20,
-    shadowColor: '#ff9a9e',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 4,
+    textAlign: "center",
   },
-  summaryText: {
+  searchWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 14,
     fontSize: 16,
-    color: '#ff9a9e',
-    marginVertical: 2,
-    fontWeight: '600',
+    marginRight: 10,
+    elevation: 3,
   },
-  card: {
-    backgroundColor: '#fff',
+  searchBtn: {
+    backgroundColor: "#E91E63",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+  },
+  searchBtnText: {
+    color: "white",
+    fontWeight: "700",
+  },
+  profileCard: {
+    backgroundColor: "#FFEBF0",
+    padding: 18,
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#ff9a9e',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 4,
+    alignItems: "center",
+    marginBottom: 20,
   },
-  subject: {
+  profileName: { fontSize: 22, fontWeight: "700", color: "#C2185B" },
+  profileId: { fontSize: 16, color: "#444" },
+
+  summaryCard: {
+    backgroundColor: "#fff",
+    padding: 18,
+    borderRadius: 16,
+    marginBottom: 20,
+    elevation: 3,
+  },
+  summaryTitle: { fontSize: 18, fontWeight: "800", color: "#E91E63", marginBottom: 8 },
+  summaryText: { fontSize: 15, fontWeight: "600", marginVertical: 2 },
+
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#ff9a9e',
-    marginBottom: 6,
+    fontWeight: "800",
+    marginBottom: 10,
+    color: "#C2185B",
   },
-  grade: {
-    fontSize: 14,
-    color: '#444',
-  },
-  marks: {
-    fontSize: 14,
-    color: '#555',
-  },
-  remarksCard: {
-    backgroundColor: '#fff',
+
+  card: {
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 16,
+    marginBottom: 12,
+    elevation: 3,
+  },
+  subject: { fontSize: 18, fontWeight: "700", color: "#E91E63" },
+  grade: { fontSize: 14, color: "#444" },
+  marks: { fontSize: 14, color: "#444" },
+
+  remarksCard: {
+    backgroundColor: "#fff",
+    padding: 18,
+    borderRadius: 16,
     marginTop: 20,
-    shadowColor: '#ff9a9e',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 4,
+    elevation: 3,
   },
-  remarksTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#ff9a9e',
-    marginBottom: 6,
-  },
-  remarksText: {
-    fontSize: 14,
-    color: '#555',
+  remarksTitle: { fontSize: 18, fontWeight: "700", color: "#E91E63" },
+  remarksText: { fontSize: 14, color: "#555", marginTop: 4 },
+
+  notFound: {
+    fontSize: 18,
+    color: "#D81B60",
+    textAlign: "center",
+    marginTop: 20,
   },
 });

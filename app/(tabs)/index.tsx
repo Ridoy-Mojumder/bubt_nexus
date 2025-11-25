@@ -1,13 +1,13 @@
-import React from "react";
-import { Pressable, StyleSheet, View, Text, ScrollView, Image } from "react-native";
-import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import React from "react";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
   const router = useRouter();
 
   const features = [
-    { title: "Student Info", route: "/student-info", image: require("../../assets/images/home-page-images/student-info.png") },
+    { title: "CR Info", route: "/student-info", image: require("../../assets/images/home-page-images/cr.png") },
     { title: "Notice Board", route: "/notice", image: require("../../assets/images/home-page-images/notice.png") },
     { title: "Events", route: "/events", image: require("../../assets/images/home-page-images/events.png") },
     { title: "Class Routine", route: "/class-routine", image: require("../../assets/images/home-page-images/routine.png") },
@@ -16,6 +16,7 @@ export default function HomeScreen() {
     { title: "Job & Internship", route: "/jobs", image: require("../../assets/images/home-page-images/jobs.png") },
     { title: "Alumni Network", route: "/alumni", image: require("../../assets/images/home-page-images/alumni.png") },
     { title: "Authentication", route: "/auth/sign-in", image: require("../../assets/images/home-page-images/authentication.png") },
+    
   ];
 
   return (
