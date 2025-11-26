@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
+✅ ROADMAP.md (Ready to use)
+# 🚀 Project Roadmap – Expo React Native App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Welcome to the official roadmap for this Expo project.  
+Follow these steps to successfully **clone, install**, and **run** the application without facing npm dependency issues.
 
-## Get started
+---
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## 📥 1. Clone the Repository
 
 ```bash
+git clone <YOUR_REPO_LINK>
+cd <YOUR_PROJECT_FOLDER>
+
+📦 2. Install Dependencies (with Fix for npm Install Error)
+⚠️ Important Note
+
+React Native 0.81.x requires:
+
+@types/react >= 19.1.0
+
+
+But some systems install lower versions, causing this error:
+
+npm ERR! ERESOLVE could not resolve dependency
+
+✅ Fix Step (Must Run Before npm install)
+npm install @types/react@latest
+
+
+This ensures types are compatible with React Native 0.81+.
+
+📦 3. Install All Dependencies Safely
+
+After updating @types/react, install the rest:
+
+npm install --legacy-peer-deps
+
+
+or (if needed)
+
+npm install
+
+▶️ 4. Start the Expo Project
+npx expo start
+
+
+You can open your app using:
+
+📱 Expo Go App
+
+🤖 Android Emulator
+
+🍎 iOS Simulator
+
+🛠️ Development Build
+
+🧹 5. Reset the Project Structure (Optional)
+
+When you want a fresh clean project:
+
 npm run reset-project
-```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
+This will move demo code into app-example/ and create a new blank app/ folder.
 
-To learn more about developing your project with Expo, look at the following resources:
+📚 Learn More
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Expo Docs: https://docs.expo.dev
 
-## Join the community
+Expo Tutorial: https://docs.expo.dev/tutorial/introduction/
 
-Join our community of developers creating universal apps.
+Expo Router: https://docs.expo.dev/router/introduction/
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+🤝 Join the Community
+
+GitHub: https://github.com/expo/expo
+
+Discord: https://chat.expo.dev
+
+✅ Done!
+
+You now have a clean, documented setup that avoids all npm dependency conflicts.
+Happy Coding! 🚀
