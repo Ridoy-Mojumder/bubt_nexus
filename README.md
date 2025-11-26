@@ -9,8 +9,8 @@ Follow these steps to successfully **clone, install**, and **run** the applicati
 ## 📥 1. Clone the Repository
 
 ```bash
-git clone <YOUR_REPO_LINK>
-cd <YOUR_PROJECT_FOLDER>
+git clone "https://github.com/Ridoy-Mojumder/bubt_nexus.git"
+cd "bubt_nexus"
 
 📦 2. Install Dependencies (with Fix for npm Install Error)
 ⚠️ Important Note
