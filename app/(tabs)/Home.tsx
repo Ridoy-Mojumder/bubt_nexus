@@ -15,7 +15,6 @@ export default function HomeScreen() {
     { title: "Results", route: "/results", image: require("../../assets/images/home-page-images/results.png") },
     { title: "Job & Internship", route: "/jobs", image: require("../../assets/images/home-page-images/jobs.png") },
     { title: "Alumni Network", route: "/alumni", image: require("../../assets/images/home-page-images/alumni.png") },
-    { title: "Authentication", route: "/auth/sign-in", image: require("../../assets/images/home-page-images/authentication.png") },
     
   ];
 
