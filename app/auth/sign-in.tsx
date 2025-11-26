@@ -9,15 +9,16 @@ import {
   Text,
   TextInput,
   View,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
+  TouchableOpacity,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function SignIn() {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [secure, setSecure] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
@@ -27,18 +28,13 @@ export default function SignIn() {
     }
 
     setLoading(true);
+
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log("Signed in:", userCredential.user);
-      Alert.alert("Success", "Signed in successfully!");
-      router.push("/"); // redirect to home
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert("Success", "Logged in successfully!");
+      router.replace("/(tabs)"); // Go to Home
     } catch (error: any) {
-      console.error("Sign In Error:", error);
-      Alert.alert("Sign In Failed", error.message);
+      Alert.alert("Login Failed", error.message);
     } finally {
       setLoading(false);
     }
@@ -46,53 +42,71 @@ export default function SignIn() {
 
   return (
     <View style={styles.root}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1, width: "100%" }}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.formContainer}>
-            <Text style={styles.title}>Welcome Back 👋</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
+      <View style={styles.card}>
+        <Text style={styles.title}>Welcome Back 👋</Text>
+        <Text style={styles.subtitle}>
+          Sign in to continue your journey
+        </Text>
 
+        {/* Email */}
+        <View>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your email"
+            placeholderTextColor="#888"
+            keyboardType="email-address"
+            onChangeText={setEmail}
+            value={email}
+          />
+        </View>
+
+        {/* Password */}
+        <View>
+          <Text style={styles.label}>Password</Text>
+
+          <View style={styles.passwordWrapper}>
             <TextInput
-              style={styles.input}
-              placeholder="Email"
+              style={[styles.input, { flex: 1 }]}
+              placeholder="Enter your password"
               placeholderTextColor="#888"
-              value={email}
-              onChangeText={setEmail}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#888"
-              secureTextEntry
-              value={password}
+              secureTextEntry={secure}
               onChangeText={setPassword}
+              value={password}
             />
 
-            <Pressable
-              style={[styles.button, loading && { opacity: 0.7 }]}
-              onPress={handleSignIn}
-              disabled={loading}
+            <TouchableOpacity
+              onPress={() => setSecure(!secure)}
+              style={styles.eyeIcon}
             >
-              <Text style={styles.buttonText}>
-                {loading ? "Signing In..." : "Sign In"}
-              </Text>
-            </Pressable>
-
-            <Pressable onPress={() => router.push("/auth/sign-up")}>
-              <Text style={styles.switchText}>
-                Don’t have an account?{" "}
-                <Text style={styles.linkText}>Sign Up</Text>
-              </Text>
-            </Pressable>
+              <Ionicons
+                name={secure ? "eye-off" : "eye"}
+                size={22}
+                color="#888"
+              />
+            </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+
+        {/* Sign In Button */}
+        <Pressable
+          style={[styles.button, loading && { opacity: 0.6 }]}
+          onPress={handleSignIn}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "Signing In..." : "Sign In"}
+          </Text>
+        </Pressable>
+
+        {/* Switch to Signup */}
+        <Pressable onPress={() => router.push("/auth/sign-up")}>
+          <Text style={styles.switchText}>
+            Do not have an account?
+            <Text style={styles.link}> Sign Up</Text>
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -100,78 +114,91 @@ export default function SignIn() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#FAF9F6", // soft off-white background
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#FAF9F6",
+    paddingHorizontal: 20,
   },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  formContainer: {
+
+  card: {
+    width: "100%",
     backgroundColor: "#fff",
+    padding: 25,
     borderRadius: 16,
-    padding: 28,
-    width: "90%",
-    maxWidth: 420,
     shadowColor: "#000",
     shadowOpacity: 0.08,
-    shadowRadius: 10,
+    shadowRadius: 8,
     elevation: 4,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.05)",
   },
+
   title: {
     fontSize: 28,
-    fontWeight: "700",
+    fontWeight: "800",
+    textAlign: "center",
     color: "#ff9a9e",
-    marginBottom: 6,
-    textAlign: "center",
   },
+
   subtitle: {
-    fontSize: 16,
-    color: "#777",
-    marginBottom: 26,
     textAlign: "center",
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    borderColor: "#ff9a9e",
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    color: "#333",
-    fontSize: 16,
-    marginBottom: 14,
-    backgroundColor: "#FAFAFA",
-  },
-  button: {
-    height: 52,
-    borderRadius: 10,
-    backgroundColor: "#ff9a9e",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 6,
-    shadowColor: "#ff9a9e",
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  switchText: {
-    color: "#555",
-    marginTop: 14,
-    textAlign: "center",
+    color: "#666",
+    marginBottom: 25,
+    marginTop: 5,
     fontSize: 14,
   },
-  linkText: {
+
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 5,
+    color: "#333",
+  },
+
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#ff9a9e",
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    backgroundColor: "#FAFAFA",
+    fontSize: 16,
+  },
+
+  passwordWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  eyeIcon: {
+    position: "absolute",
+    right: 15,
+  },
+
+  button: {
+    marginTop: 25,
+    backgroundColor: "#ff9a9e",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#ff9a9e",
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+  },
+
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  switchText: {
+    marginTop: 18,
+    textAlign: "center",
+    fontSize: 14,
+    color: "#555",
+  },
+
+  link: {
     color: "#ff9a9e",
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });
