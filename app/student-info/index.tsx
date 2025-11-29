@@ -1,253 +1,183 @@
-import { auth, db } from "@/firebaseConfig";
+import React from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
-import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  ActivityIndicator,
-} from "react-native";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-export default function StudentInfoScreen() {
-  const user = auth.currentUser; // 🔹 direct access
-
-  const [userName, setUserName] = useState<string | null>(user?.displayName ?? null);
-  const [userEmail, setUserEmail] = useState<string | null>(user?.email ?? null);
-
-  // signup theke ashar field
-  const [studentId, setStudentId] = useState<string | null>(null);
-  const [intake, setIntake] = useState<string | null>(null);
-  const [section, setSection] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
-
-  // editable extra info
-  const [department, setDepartment] = useState("");
-  const [session, setSession] = useState("");
-  const [roll, setRoll] = useState("");
-  const [image, setImage] = useState<string | null>(null);
-
-  const [initialLoading, setInitialLoading] = useState(true); // শুধু data fetch er jonno
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        if (!user) {
-          setInitialLoading(false);
-          return;
-        }
-
-        console.log("🔹 StudentInfoScreen: loading Firestore user doc for uid:", user.uid);
-
-        const userRef = doc(db, "users", user.uid);
-        const snap = await getDoc(userRef);
-
-        if (snap.exists()) {
-          const data = snap.data() as any;
-          console.log("✅ Firestore data:", data);
-
-          setRole(data.role ?? null);
-          setStudentId(data.studentID ?? null);
-          setIntake(data.intake ?? null);
-          setSection(data.section ?? null);
-
-          setDepartment(data.department ?? "");
-          setSession(data.session ?? "");
-          setRoll(data.roll ?? "");
-
-          const photo = data.photoURL ?? (user as any)?.photoURL ?? null;
-          if (photo) {
-            setImage(photo);
-          }
-        } else {
-          console.log("⚠️ No user doc found in Firestore, showing only auth info");
-          const photo = (user as any)?.photoURL ?? null;
-          if (photo) setImage(photo);
-        }
-      } catch (error) {
-        console.log("❌ StudentInfoScreen load error:", error);
-        Alert.alert("Error", "Failed to load your profile information.");
-      } finally {
-        setInitialLoading(false);
-      }
-    };
-
-    load();
-  }, [user]);
-
-  const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      Alert.alert("Permission Denied", "Please allow access to photos.");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!user) {
-      Alert.alert("Error", "No logged-in user found.");
-      return;
-    }
-
-    try {
-      setSaving(true);
-
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, {
-        department: department.trim(),
-        session: session.trim(),
-        roll: roll.trim(),
-        photoURL: image ?? null,
-      });
-
-      Alert.alert("Info Saved", "Your information has been updated successfully!");
-      console.log("✅ Saved profile:", {
-        name: userName,
-        email: userEmail,
-        studentId,
-        intake,
-        section,
-        department,
-        session,
-        roll,
-        image,
-      });
-    } catch (error) {
-      console.log("❌ Save student info error:", error);
-      Alert.alert("Error", "Failed to save your information.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // jodi kono login na thake
-  if (!user) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={{ color: "#ff4f6a", fontSize: 16, fontWeight: "600" }}>
-          No student logged in.
-        </Text>
-        <Text style={{ color: "#777", marginTop: 4 }}>
-          Please sign in first.
-        </Text>
-      </View>
-    );
-  }
-
+export default function CRProfileScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>🎓 Student Profile</Text>
+        <Text style={styles.title}>🎓 Class Representative</Text>
 
         {/* Profile Image + Name */}
         <View style={styles.profileSection}>
           <Image
-            source={
-              image
-                ? { uri: image }
-                : require("@/assets/images/all-images/user-profile.png")
-            }
+            source={require("@/assets/images/all-images/user-profile.png")}
             style={styles.profileImage}
             contentFit="cover"
           />
-          <Pressable style={styles.uploadButton} onPress={pickImage}>
-            <Text style={styles.uploadText}>Upload Image</Text>
-          </Pressable>
 
-          <Text style={styles.nameText}>{userName || "Unknown User"}</Text>
-          <Text style={styles.emailText}>{userEmail || "No Email"}</Text>
+          <Text style={styles.nameText}>Md. Rakib Hasan</Text>
+          <Text style={styles.emailText}>rakib.hasan@bubt.edu.bd</Text>
+          <Text style={styles.subText}>Intake 51 · Section A · CSE</Text>
         </View>
 
-        {/* jodi data load hocche, small indicator */}
-        {initialLoading && (
-          <View style={{ marginBottom: 16, alignItems: "center" }}>
-            <ActivityIndicator size="small" color="#ff9a9e" />
-            <Text style={{ marginTop: 4, color: "#ff9a9e" }}>
-              Loading academic info...
-            </Text>
-          </View>
-        )}
-
-        {/* Student Info Card */}
+        {/* Short Info Card (role / id / intake / section) */}
         <View style={styles.card}>
           <View style={styles.badgeRow}>
-            {role && (
-              <View style={[styles.badge, { backgroundColor: "#ff9a9e22" }]}>
-                <Text style={styles.badgeText}>{role.toUpperCase()}</Text>
-              </View>
-            )}
-            {studentId && (
-              <View style={[styles.badge, { backgroundColor: "#ffe0e6" }]}>
-                <Text style={styles.badgeText}>ID: {studentId}</Text>
-              </View>
-            )}
+            <View style={[styles.badge, { backgroundColor: "#ff9a9e22" }]}>
+              <Text style={styles.badgeText}>CR</Text>
+            </View>
+            <View style={[styles.badge, { backgroundColor: "#ffe0e6" }]}>
+              <Text style={styles.badgeText}>Intake 51</Text>
+            </View>
+            <View style={[styles.badge, { backgroundColor: "#ffe0e6" }]}>
+              <Text style={styles.badgeText}>Section A</Text>
+            </View>
           </View>
 
           <View style={styles.infoRow}>
             <View style={styles.infoCol}>
-              <Text style={styles.infoLabel}>Intake</Text>
-              <Text style={styles.infoValue}>{intake || "-"}</Text>
+              <Text style={styles.infoLabel}>Department</Text>
+              <Text style={styles.infoValue}>Computer Science &amp; Engineering</Text>
             </View>
             <View style={styles.infoCol}>
-              <Text style={styles.infoLabel}>Section</Text>
-              <Text style={styles.infoValue}>{section || "-"}</Text>
+              <Text style={styles.infoLabel}>Phone</Text>
+              <Text style={styles.infoValue}>+88017XXXXXXXX</Text>
+            </View>
+          </View>
+
+          <View style={[styles.infoRow, { marginTop: 12 }]}>
+            <View style={styles.infoCol}>
+              <Text style={styles.infoLabel}>Student ID</Text>
+              <Text style={styles.infoValue}>CSE-51-1234</Text>
+            </View>
+            <View style={styles.infoCol}>
+              <Text style={styles.infoLabel}>Campus</Text>
+              <Text style={styles.infoValue}>Main Campus</Text>
             </View>
           </View>
         </View>
 
-        {/* Editable Academic Info */}
-        <View style={styles.form}>
-          <Text style={styles.formTitle}>Academic Details</Text>
+        {/* CR Details / Responsibilities */}
+        <View style={styles.crCard}>
+          <Text style={styles.crTitle}>👤 CR Details</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Department (e.g., CSE)"
-            placeholderTextColor="#ffb8bc"
-            value={department}
-            onChangeText={setDepartment}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Session (e.g., 2021-2022)"
-            placeholderTextColor="#ffb8bc"
-            value={session}
-            onChangeText={setSession}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Roll Number"
-            placeholderTextColor="#ffb8bc"
-            value={roll}
-            onChangeText={setRoll}
-          />
+          <View style={styles.crRow}>
+            <View style={styles.crCol}>
+              <Text style={styles.crLabel}>Full Name</Text>
+              <Text style={styles.crValue}>Md. Rakib Hasan</Text>
+            </View>
+            <View style={styles.crCol}>
+              <Text style={styles.crLabel}>Intake &amp; Section</Text>
+              <Text style={styles.crValue}>51 | A</Text>
+            </View>
+          </View>
 
-          <Pressable
-            style={[styles.saveButton, saving && { opacity: 0.7 }]}
-            onPress={handleSave}
-            disabled={saving}
-          >
-            <Text style={styles.saveButtonText}>
-              {saving ? "Saving..." : "💾 Save Info"}
+          <View style={styles.crRow}>
+            <View style={styles.crCol}>
+              <Text style={styles.crLabel}>Email</Text>
+              <Text style={styles.crValue}>rakib.hasan@bubt.edu.bd</Text>
+            </View>
+            <View style={styles.crCol}>
+              <Text style={styles.crLabel}>Phone</Text>
+              <Text style={styles.crValue}>+88017XXXXXXXX</Text>
+            </View>
+          </View>
+
+          <View style={styles.separator} />
+
+          <Text style={styles.sectionTitle}>Responsibilities</Text>
+          <View style={styles.bulletList}>
+            <Text style={styles.bulletItem}>
+              • Collect and share class routine &amp; updates with students.
             </Text>
-          </Pressable>
+            <Text style={styles.bulletItem}>
+              • Communicate important notices from teachers &amp; admin.
+            </Text>
+            <Text style={styles.bulletItem}>
+              • Help maintain discipline and attendance in the classroom.
+            </Text>
+            <Text style={styles.bulletItem}>
+              • Coordinate exam schedule changes and makeup classes.
+            </Text>
+          </View>
         </View>
+
+        {/* Availability / Office Hour Card */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>🕒 Availability</Text>
+
+          <View style={{ marginTop: 8 }}>
+            <Text style={styles.infoLabel}>On Campus</Text>
+            <Text style={styles.infoValue}>Sun – Thu, 9:00 AM – 3:00 PM</Text>
+          </View>
+
+          <View style={{ marginTop: 10 }}>
+            <Text style={styles.infoLabel}>Best Time to Contact</Text>
+            <Text style={styles.infoValue}>Between classes &amp; via WhatsApp</Text>
+          </View>
+
+          <View style={{ marginTop: 10 }}>
+            <Text style={styles.infoLabel}>Preferred Contact</Text>
+            <Text style={styles.infoValue}>Class WhatsApp Group / Messenger</Text>
+          </View>
+        </View>
+
+        {/* Important Links (demo only) */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>🔗 Important Links</Text>
+
+          <View style={styles.linkRow}>
+            <View style={styles.linkDot} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.linkTitle}>Class WhatsApp Group</Text>
+              <Text style={styles.linkSub}>Only for Intake 51, Section A students</Text>
+            </View>
+          </View>
+
+          <View style={styles.linkRow}>
+            <View style={styles.linkDot} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.linkTitle}>CSE Notices (Dept.)</Text>
+              <Text style={styles.linkSub}>Check latest academic &amp; exam notices here</Text>
+            </View>
+          </View>
+
+          <View style={styles.linkRow}>
+            <View style={styles.linkDot} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.linkTitle}>Class Routine (PDF)</Text>
+              <Text style={styles.linkSub}>Updated: 20 November 2025</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Last Announcement (demo) */}
+        <View style={styles.crCard}>
+          <Text style={styles.sectionTitle}>📝 Last Announcement</Text>
+
+          <Text style={styles.announcementTitle}>
+            Quiz on Data Structures – Rescheduled
+          </Text>
+          <Text style={styles.announcementText}>
+            The quiz of CSE 2303 (Data Structures) has been shifted to{" "}
+            <Text style={{ fontWeight: "700" }}>Monday, 2 December 2025</Text> at{" "}
+            <Text style={{ fontWeight: "700" }}>11:00 AM</Text>.{"\n"}
+            {"\n"}
+            Please bring your ID card and be present 10 minutes before the exam
+            starts.
+          </Text>
+
+          <Text style={styles.announcementMeta}>
+            Posted by CR · 28 November 2025 · 9:30 PM
+          </Text>
+        </View>
+
+        {/* Footer note */}
+        <Text style={styles.footerNote}>
+          This is a demo CR profile design. In the real app, all information will be loaded
+          dynamically based on the logged-in student&apos;s intake & section.
+        </Text>
       </View>
     </ScrollView>
   );
@@ -264,12 +194,6 @@ const styles = StyleSheet.create({
     width: "92%",
     alignItems: "center",
     paddingTop: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: "#FFF8F8",
-    alignItems: "center",
-    justifyContent: "center",
   },
   title: {
     fontSize: 28,
@@ -296,19 +220,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
   },
-  uploadButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    backgroundColor: "#ff9a9e22",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#ff9a9e44",
-    marginBottom: 8,
-  },
-  uploadText: {
-    color: "#ff9a9e",
-    fontWeight: "600",
-  },
   nameText: {
     fontSize: 20,
     fontWeight: "700",
@@ -318,6 +229,11 @@ const styles = StyleSheet.create({
   emailText: {
     fontSize: 14,
     color: "#777",
+    marginTop: 2,
+  },
+  subText: {
+    fontSize: 13,
+    color: "#999",
     marginTop: 2,
   },
   card: {
@@ -336,6 +252,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     marginBottom: 12,
+    flexWrap: "wrap",
   },
   badge: {
     paddingHorizontal: 12,
@@ -365,46 +282,110 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
   },
-  form: {
+
+  // CR card styles
+  crCard: {
     width: "100%",
-    backgroundColor: "#fff",
+    backgroundColor: "#fff7f8",
     borderRadius: 18,
-    padding: 20,
-    shadowColor: "#ff9a9e",
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
+    padding: 18,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#ffe0e6",
   },
-  formTitle: {
+  crTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#ff7b88",
-    marginBottom: 14,
+    color: "#ff4f6a",
+    marginBottom: 12,
   },
-  input: {
-    height: 50,
-    borderColor: "#ff9a9e",
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
+  crRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 16,
+    marginBottom: 8,
+  },
+  crCol: {
+    flex: 1,
+  },
+  crLabel: {
+    fontSize: 12,
+    color: "#999",
+    marginBottom: 2,
+  },
+  crValue: {
+    fontSize: 15,
+    fontWeight: "600",
     color: "#333",
-    marginBottom: 14,
-    backgroundColor: "#FFF9FA",
   },
-  saveButton: {
-    backgroundColor: "#ff9a9e",
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 10,
-    shadowColor: "#ff9a9e",
-    shadowOpacity: 0.4,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 6,
+  separator: {
+    height: 1,
+    backgroundColor: "#ffe0e6",
+    marginVertical: 10,
   },
-  saveButtonText: {
-    color: "#fff",
-    fontWeight: "700",
+  sectionTitle: {
     fontSize: 16,
+    fontWeight: "700",
+    color: "#ff4f6a",
+    marginBottom: 6,
+  },
+  bulletList: {
+    marginTop: 4,
+    gap: 4,
+  },
+  bulletItem: {
+    fontSize: 13,
+    color: "#555",
+    lineHeight: 18,
+  },
+
+  // Links
+  linkRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginTop: 10,
+    gap: 8,
+  },
+  linkDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginTop: 6,
+    backgroundColor: "#ff9a9e",
+  },
+  linkTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+  },
+  linkSub: {
+    fontSize: 12,
+    color: "#777",
+  },
+
+  // Announcement
+  announcementTitle: {
+    marginTop: 8,
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#333",
+  },
+  announcementText: {
+    fontSize: 13,
+    color: "#555",
+    marginTop: 4,
+    lineHeight: 19,
+  },
+  announcementMeta: {
+    fontSize: 11,
+    color: "#999",
+    marginTop: 8,
+  },
+
+  footerNote: {
+    fontSize: 11,
+    color: "#999",
+    marginTop: 6,
+    textAlign: "center",
   },
 });

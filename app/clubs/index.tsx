@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, Text, Pressable, StyleSheet, View, Image } from "react-native";
+import { ScrollView, Text, Pressable, StyleSheet, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { clubs } from "../../data/clubs";
 

@@ -1,11 +1,11 @@
 import React from "react";
-import { Tabs, Redirect } from "expo-router";
-import { useAuth } from "../context/AuthContext"; 
+import { Tabs, Redirect } from "expo-router"; 
 import { Colors } from "@/constants/Colors";
 import { Platform } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function TabLayout() {
   const { user, loading } = useAuth();

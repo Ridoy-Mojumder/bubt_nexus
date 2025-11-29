@@ -1,14 +1,16 @@
+// app/auth/sign-up.tsx
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
-  ScrollView,
 } from "react-native";
-import { useRouter } from "expo-router";
 
 import { auth, db } from "@/firebaseConfig";
 import {
@@ -23,16 +25,23 @@ import {
   query,
   setDoc,
   where,
-  Platform,
 } from "firebase/firestore";
+
+type Role = "student" | "teacher" | "admin";
+
+// optional: hard-coded admin secret (poro jodi env theke nebo)
+const ADMIN_SECRET = "ADMIN-1234";
 
 export default function SignUp() {
   const router = useRouter();
 
-  const [role, setRole] = useState<"student" | "teacher" | "admin">("student");
+  const [role, setRole] = useState<Role>("student");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // common / academic
+  const [department, setDepartment] = useState("");
 
   // student
   const [intake, setIntake] = useState("");
@@ -46,26 +55,59 @@ export default function SignUp() {
   const [adminKey, setAdminKey] = useState("");
   const [officeID, setOfficeID] = useState("");
 
-  const [loading, setLoading] = useState(false);
+  const resetRoleSpecificFields = () => {
+    setIntake("");
+    setSection("");
+    setTeacherID("");
+    setSubject("");
+    setAdminKey("");
+    setOfficeID("");
+    setDepartment("");
+  };
 
   const validateInputs = () => {
     if (!name.trim() || !email.trim() || !password) {
       Alert.alert("Error", "Please fill the name, email and password fields.");
       return false;
     }
-    if (role === "teacher" && !teacherID.trim()) {
-      Alert.alert("Error", "Please provide Teacher ID.");
-      return false;
+
+    if (role === "student") {
+      if (!intake.trim() || !section.trim() || !department.trim()) {
+        Alert.alert(
+          "Error",
+          "Please provide Intake, Section and Department for student."
+        );
+        return false;
+      }
     }
-    if (role === "admin" && !adminKey.trim()) {
-      Alert.alert("Error", "Please provide Admin Secret Key.");
-      return false;
+
+    if (role === "teacher") {
+      if (!teacherID.trim() || !subject.trim() || !department.trim()) {
+        Alert.alert(
+          "Error",
+          "Please provide Teacher ID, Subject and Department for teacher."
+        );
+        return false;
+      }
     }
+
+    if (role === "admin") {
+      if (!adminKey.trim() || !officeID.trim()) {
+        Alert.alert("Error", "Please provide Admin Secret Key and Office ID.");
+        return false;
+      }
+
+      if (adminKey.trim() !== ADMIN_SECRET) {
+        Alert.alert("Error", "Invalid Admin Secret Key.");
+        return false;
+      }
+    }
+
     return true;
   };
 
+  // auto student ID: S001, S002, ...
   const generateStudentID = async () => {
-    // Simple approach: count existing student users and increment.
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("role", "==", "student"));
     const snap = await getDocs(q);
@@ -77,89 +119,83 @@ export default function SignUp() {
     await setDoc(doc(db, "users", uid), userData);
   };
 
-const handleSignUp = async () => {
-  if (!validateInputs()) return;
+  const handleSignUp = async () => {
+    if (!validateInputs()) return;
 
-  setLoading(true);
+    try {
+      const trimmedEmail = email.trim();
+      const trimmedName = name.trim();
 
-  try {
-    const trimmedEmail = email.trim();
-    const trimmedName = name.trim();
+      console.log("🔹 Starting signup...");
 
-    console.log("🔹 Starting signup...");
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        trimmedEmail,
+        password
+      );
+      const user: User = userCredential.user;
 
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      trimmedEmail,
-      password
-    );
-    const user: User = userCredential.user;
+      console.log("✅ Firebase auth user created:", user.uid);
 
-    console.log("✅ Firebase auth user created:", user.uid);
+      await updateProfile(user, { displayName: trimmedName });
+      console.log("✅ Profile updated");
 
-    await updateProfile(user, { displayName: trimmedName });
-    console.log("✅ Profile updated");
+      const baseData: any = {
+        name: trimmedName,
+        email: trimmedEmail,
+        role,
+        createdAt: new Date().toISOString(),
+      };
 
-    const baseData: any = {
-      name: trimmedName,
-      email: trimmedEmail,
-      role,
-      createdAt: new Date().toISOString(),
-    };
+      if (role === "student") {
+        baseData.intake = intake.trim();
+        baseData.section = section.trim();
+        baseData.department = department.trim();
+        baseData.studentID = await generateStudentID();
+        console.log("🎓 Generated student ID:", baseData.studentID);
+      } else if (role === "teacher") {
+        baseData.teacherID = teacherID.trim();
+        baseData.subject = subject.trim();
+        baseData.department = department.trim();
+      } else if (role === "admin") {
+        // NOTE: adminKey DB te store kora lagbe kina sheta tomar choice,
+        // beshi secure korte chaile sudhu officeID, role r email rakhlei hoy.
+        baseData.officeID = officeID.trim();
+        baseData.isSuperAdmin = true;
+      }
 
-    if (role === "student") {
-      baseData.intake = intake.trim();
-      baseData.section = section.trim();
-      baseData.studentID = await generateStudentID();
-      console.log("🎓 Generated student ID:", baseData.studentID);
-    } else if (role === "teacher") {
-      baseData.teacherID = teacherID.trim();
-      baseData.subject = subject.trim();
-    } else if (role === "admin") {
-      baseData.adminKey = adminKey.trim();
-      baseData.officeID = officeID.trim();
+      await saveUserToFirestore(user.uid, baseData);
+      console.log("✅ User saved to Firestore");
+
+      const msg =
+        role === "student"
+          ? `Account created! Your Student ID: ${baseData.studentID}`
+          : "Account created!";
+
+      if (Platform.OS === "web") {
+        window.alert(msg);
+      } else {
+        Alert.alert("Success", msg);
+      }
+
+      console.log("➡️ Navigating to sign-in...");
+      router.replace("sign-in");
+    } catch (err: any) {
+      console.log("❌ SignUp Error:", err?.code, err?.message ?? err);
+      Alert.alert(
+        "Error",
+        err?.message ?? "Something went wrong during sign up"
+      );
     }
+  };
 
-    await saveUserToFirestore(user.uid, baseData);
-    console.log("✅ User saved to Firestore");
-
-    const msg =
-      role === "student"
-        ? `Account created! Your Student ID: ${baseData.studentID}`
-        : "Account created!";
-
-    // 🔻 শুধুই feedback, navigation আলাদাভাবে করব
-    if (Platform.OS === "web") {
-      window.alert(msg);
-    } else {
-      Alert.alert("Success", msg);
-    }
-
-    console.log("➡️ Navigating to sign-in...");
-
-    // ❗❗ এখানেই main change: সব প্ল্যাটফর্মে direct navigate
-    // এখানে PATH টা তোমার ফাইল স্ট্রাকচার অনুযায়ী ঠিক করবে
-    router.replace("/auth/sign-in");
-    // যদি sign-in screen থাকে app/(auth)/sign-in.tsx এ:
-    // router.replace("/(auth)/sign-in");
-    // অথবা শুধু app/sign-in.tsx হলে:
-    // router.replace("/sign-in");
-
-  } catch (err: any) {
-    console.log("❌ SignUp Error:", err?.code, err?.message ?? err);
-    Alert.alert(
-      "Error",
-      err?.message ?? "Something went wrong during sign up"
-    );
-  } finally {
-    console.log("🔚 Signup finished, turning loading off");
-    setLoading(false);
-  }
-};
-
-
-  const RoleButton = ({ r }: { r: "student" | "teacher" | "admin" }) => (
-    <Pressable onPress={() => setRole(r)}>
+  const RoleButton = ({ r }: { r: Role }) => (
+    <Pressable
+      onPress={() => {
+        setRole(r);
+        resetRoleSpecificFields();
+      }}
+    >
       <Text style={[styles.option, role === r && styles.active]}>
         {r[0].toUpperCase() + r.slice(1)}
       </Text>
@@ -167,7 +203,7 @@ const handleSignUp = async () => {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} className="bg-white">
       <Text style={styles.title}>Create Account</Text>
 
       <Text style={styles.label}>Select Role</Text>
@@ -200,8 +236,15 @@ const handleSignUp = async () => {
         value={password}
       />
 
+      {/* STUDENT FIELDS */}
       {role === "student" && (
         <>
+          <TextInput
+            style={styles.input}
+            placeholder="Department (e.g. CSE)"
+            onChangeText={setDepartment}
+            value={department}
+          />
           <TextInput
             style={styles.input}
             placeholder="Intake"
@@ -220,8 +263,15 @@ const handleSignUp = async () => {
         </>
       )}
 
+      {/* TEACHER FIELDS */}
       {role === "teacher" && (
         <>
+          <TextInput
+            style={styles.input}
+            placeholder="Department (e.g. CSE)"
+            onChangeText={setDepartment}
+            value={department}
+          />
           <TextInput
             style={styles.input}
             placeholder="Teacher ID"
@@ -237,6 +287,7 @@ const handleSignUp = async () => {
         </>
       )}
 
+      {/* ADMIN FIELDS */}
       {role === "admin" && (
         <>
           <TextInput
@@ -254,15 +305,25 @@ const handleSignUp = async () => {
         </>
       )}
 
-      <Pressable
-        style={[styles.button, loading && { opacity: 0.7 }]}
-        onPress={handleSignUp}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "Creating..." : "Sign Up"}
-        </Text>
+      <Pressable style={styles.button} onPress={handleSignUp}>
+        <Text style={styles.buttonText}>Sign Up</Text>
       </Pressable>
+
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          marginTop: 15,
+        }}
+      >
+        <Text style={{ color: "gray" }}>Already have an account? </Text>
+        <Text
+          style={{ color: "#ff9a9e", fontWeight: "600" }}
+          onPress={() => router.push("auth/sign-in")}
+        >
+          Sign In
+        </Text>
+      </View>
     </ScrollView>
   );
 }
