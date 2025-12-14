@@ -1,22 +1,59 @@
+// app/(tabs)/Home.tsx
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import React from "react";
+import { useRouter } from "expo-router"; // remove Href import
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+
+type FeatureItem = {
+  title: string;
+  route: string; // <- use plain string instead of Href
+  image: any;
+};
 
 export default function HomeScreen() {
   const router = useRouter();
 
-  const features = [
-    { title: "CR Info", route: "/student-info", image: require("../../assets/images/home-page-images/cr.png") },
-    { title: "Notice Board", route: "/notice", image: require("../../assets/images/home-page-images/notice.png") },
-    { title: "Events", route: "/events", image: require("../../assets/images/home-page-images/events.png") },
-    { title: "Class Routine", route: "/class-routine", image: require("../../assets/images/home-page-images/routine.png") },
-    { title: "Clubs & Activities", route: "/clubs", image: require("../../assets/images/home-page-images/clubs.png") },
-    { title: "Results", route: "/results", image: require("../../assets/images/home-page-images/results.png") },
-    { title: "Job & Internship", route: "/jobs", image: require("../../assets/images/home-page-images/jobs.png") },
-    { title: "Alumni Network", route: "/alumni", image: require("../../assets/images/home-page-images/alumni.png") },
-    
-  ];
+  const features: FeatureItem[] = [
+  {
+    title: "CR Info",
+    route: "/student-info/student-info_index",
+    image: require("../../assets/images/home-page-images/cr.png"),
+  },
+  {
+    title: "Notice Board",
+    route: "/notice/notice_index",
+    image: require("../../assets/images/home-page-images/notice.png"),
+  },
+  {
+    title: "Events",
+    route: "/events/event_index",
+    image: require("../../assets/images/home-page-images/events.png"),
+  },
+  {
+    title: "Class Routine",
+    route: "/class-routine/class-routine_index",
+    image: require("../../assets/images/home-page-images/routine.png"),
+  },
+  {
+    title: "Clubs & Activities",
+    route: "/clubs/club_index",
+    image: require("../../assets/images/home-page-images/clubs.png"),
+  },
+  {
+    title: "Results",
+    route: "/results/results_index",
+    image: require("../../assets/images/home-page-images/results.png"),
+  },
+  {
+    title: "Job & Internship",
+    route: "/jobs/jobs_index",
+    image: require("../../assets/images/home-page-images/jobs.png"),
+  },
+  {
+    title: "Alumni Network",
+    route: "/alumni/alumni_index",
+    image: require("../../assets/images/home-page-images/alumni.png"),
+  },
+];
 
   return (
     <View style={styles.container}>
@@ -42,26 +79,24 @@ export default function HomeScreen() {
       >
         {features.map((item) => (
           <Pressable
-            key={item.route}
+            key={item.title}
             style={({ pressed }) => [
               styles.card,
               pressed && { transform: [{ scale: 0.97 }], shadowOpacity: 0.4 },
             ]}
-            onPress={() => router.push(item.route)}
+            onPress={() => router.push(item.route as any)}
           >
             <Image source={item.image} style={styles.featureImage} />
             <Text style={styles.cardTitle}>{item.title}</Text>
           </Pressable>
         ))}
-
-        
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFF8F8" }, // soft off-white
+  container: { flex: 1, backgroundColor: "#FFF8F8" },
 
   header: {
     paddingVertical: 50,
@@ -130,5 +165,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
   },
-
 });

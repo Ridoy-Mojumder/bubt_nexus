@@ -1,39 +1,34 @@
-import React from "react";
-import {
-  ScrollView,
-  Text,
-  Pressable,
-  StyleSheet,
-  Image,
-} from "react-native";
+import { BackHeader } from "@/src/components/BackHeader";
 import { useRouter } from "expo-router";
-import { events } from "../../data/events";
+import { Image, Pressable, ScrollView, StyleSheet, Text } from "react-native";
+import { clubs } from "../../data/clubs";
 
-export default function Events() {
+export default function Clubs() {
   const router = useRouter();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>🎉 Upcoming Events</Text>
+      <BackHeader title="" />
 
-      {events.map((event) => (
+      <Text style={styles.title}>🤝 Campus Clubs</Text>
+
+      {clubs.map((club) => (
         <Pressable
-          key={event.id}
+          key={club.id}
           style={({ pressed }) => [
             styles.card,
             pressed && { transform: [{ scale: 0.97 }], shadowOpacity: 0.3 },
           ]}
           onPress={() =>
             router.push({
-              pathname: "/events/details",
-              params: { id: event.id },
+              pathname: "/clubs/details" as any,
+              params: { id: club.id },
             })
           }
         >
-          <Image source={event.image} style={styles.image} />
-          <Text style={styles.eventTitle}>{event.title}</Text>
-          <Text style={styles.eventDetails}>📅 Date: {event.date}</Text>
-          <Text style={styles.eventDetails}>📍 Venue: {event.venue}</Text>
+          <Image source={club.profileImage} style={styles.image} />
+          <Text style={styles.name}>{club.name}</Text>
+          <Text style={styles.desc}>{club.description}</Text>
         </Pressable>
       ))}
     </ScrollView>
@@ -59,13 +54,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 6,
     elevation: 4,
+    alignItems: "center",
   },
-  image: { width: 60, height: 60, borderRadius: 0, marginBottom: 8 },
-  eventTitle: {
+  image: { width: 60, height: 60, borderRadius: 30, marginBottom: 8 },
+  name: {
     fontSize: 18,
     fontWeight: "700",
     color: "#ff9a9e",
     marginBottom: 4,
   },
-  eventDetails: { fontSize: 14, color: "#444", marginVertical: 2 },
+  desc: { fontSize: 14, color: "#555", textAlign: "center" },
 });

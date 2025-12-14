@@ -1,7 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage"; // <--- 1. Import this
 
+// TODO: put your real config here (from Firebase console)
 const firebaseConfig = {
   apiKey: "AIzaSyAg8SXobwSZ-g3infDVCmkMtBZ6aXk5to0",
   authDomain: "bubt-nexus.firebaseapp.com",
@@ -11,6 +13,9 @@ const firebaseConfig = {
   appId: "1:491259241291:web:ed017b2950c0fe4797fece"
 };
 
+
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app); 
-export const auth = getAuth(app); 
+
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const storage = getStorage(app); // <--- 2. Add this line!

@@ -1,5 +1,5 @@
 import { db } from "@/firebaseConfig";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 export const generateStudentID = async () => {
   const studentsRef = collection(db, "users");
