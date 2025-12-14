@@ -1,11 +1,21 @@
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function CRProfileScreen() {
+  const router = useRouter();
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
+        {/* Back to Home button */}
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backButtonText}>← Home</Text>
+        </TouchableOpacity>
+
         <Text style={styles.title}>🎓 Class Representative</Text>
 
         {/* Profile Image + Name */}
@@ -18,7 +28,7 @@ export default function CRProfileScreen() {
 
           <Text style={styles.nameText}>Md. Rakib Hasan</Text>
           <Text style={styles.emailText}>rakib.hasan@bubt.edu.bd</Text>
-          <Text style={styles.subText}>Intake 51 · Section A · CSE</Text>
+          <Text style={styles.subText}>Intake 45 · Section 3 · CSE</Text>
         </View>
 
         {/* Short Info Card (role / id / intake / section) */}
@@ -28,10 +38,10 @@ export default function CRProfileScreen() {
               <Text style={styles.badgeText}>CR</Text>
             </View>
             <View style={[styles.badge, { backgroundColor: "#ffe0e6" }]}>
-              <Text style={styles.badgeText}>Intake 51</Text>
+              <Text style={styles.badgeText}>Intake 45</Text>
             </View>
             <View style={[styles.badge, { backgroundColor: "#ffe0e6" }]}>
-              <Text style={styles.badgeText}>Section A</Text>
+              <Text style={styles.badgeText}>Section 3</Text>
             </View>
           </View>
 
@@ -49,7 +59,7 @@ export default function CRProfileScreen() {
           <View style={[styles.infoRow, { marginTop: 12 }]}>
             <View style={styles.infoCol}>
               <Text style={styles.infoLabel}>Student ID</Text>
-              <Text style={styles.infoValue}>CSE-51-1234</Text>
+              <Text style={styles.infoValue}>20234203142</Text>
             </View>
             <View style={styles.infoCol}>
               <Text style={styles.infoLabel}>Campus</Text>
@@ -69,7 +79,7 @@ export default function CRProfileScreen() {
             </View>
             <View style={styles.crCol}>
               <Text style={styles.crLabel}>Intake &amp; Section</Text>
-              <Text style={styles.crValue}>51 | A</Text>
+              <Text style={styles.crValue}>45 | 3</Text>
             </View>
           </View>
 
@@ -172,12 +182,6 @@ export default function CRProfileScreen() {
             Posted by CR · 28 November 2025 · 9:30 PM
           </Text>
         </View>
-
-        {/* Footer note */}
-        <Text style={styles.footerNote}>
-          This is a demo CR profile design. In the real app, all information will be loaded
-          dynamically based on the logged-in student&apos;s intake & section.
-        </Text>
       </View>
     </ScrollView>
   );
@@ -195,6 +199,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 40,
   },
+
+  // NEW styles for back button
+  backButton: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "#ff9a9e33",
+    marginBottom: 12,
+  },
+  backButtonText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#ff4f6a",
+  },
+
   title: {
     fontSize: 28,
     fontWeight: "800",

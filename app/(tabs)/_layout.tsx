@@ -1,49 +1,61 @@
-import React from "react";
-import { Tabs, Redirect } from "expo-router"; 
-import { Colors } from "@/constants/Colors";
+// app/(tabs)/_layout.tsx
+import { Ionicons } from "@expo/vector-icons";
+import { Redirect, Tabs } from "expo-router";
 import { Platform } from "react-native";
+
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/Colors";
 import { useAuth } from "@/src/context/AuthContext";
 
 export default function TabLayout() {
   const { user, loading } = useAuth();
 
-  if (loading) return null; // Or Loading Screen
-
-  // 🔥 User NOT logged in → redirect to Sign In
-  if (!user) return <Redirect href="/auth/sign-in" />;
+  if (loading) return null;
+  if (!user) return <Redirect href="/auth/auth_index" />;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarActiveTintColor: Colors.light.tint,
+        tabBarInactiveTintColor: "#999",
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarActiveTintColor: Colors.light.tint,
         tabBarStyle: Platform.select({
-          ios: { position: "absolute" },
+          ios: {
+            position: "absolute",
+            borderTopWidth: 0,
+            backgroundColor: "transparent",
+            elevation: 0,
+          },
+          android: {
+            borderTopWidth: 0,
+            backgroundColor: "transparent",
+            elevation: 0,
+          },
           default: {},
         }),
       }}
     >
+      {/* LEFT: Home */}
       <Tabs.Screen
-        name="index"
+        name="Home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
 
+      {/* RIGHT: Profile */}
       <Tabs.Screen
-        name="explore"
+        name="profile"
         options={{
-          title: "Explore",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle-outline" size={size} color={color} />
           ),
         }}
       />

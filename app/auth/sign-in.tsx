@@ -1,17 +1,18 @@
+// app/auth/sign-in.tsx
 import { auth } from "@/firebaseConfig";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
-  View,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function SignIn() {
   const router = useRouter();
@@ -31,8 +32,12 @@ export default function SignIn() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      Alert.alert("Success", "Logged in successfully!");
-      router.replace("/(tabs)"); // Go to Home
+
+      // Optional: remove the alert to avoid blocking navigation on web
+      // Alert.alert("Success", "Logged in successfully!");
+
+      // ✅ Go to tabs group; default screen is Home at /(tabs)/index
+      router.replace("/(tabs)/Home");
     } catch (error: any) {
       Alert.alert("Login Failed", error.message);
     } finally {
@@ -110,6 +115,9 @@ export default function SignIn() {
     </View>
   );
 }
+
+// styles unchanged...
+
 
 const styles = StyleSheet.create({
   root: {

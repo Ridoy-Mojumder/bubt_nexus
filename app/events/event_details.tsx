@@ -1,14 +1,13 @@
-import React from "react";
-import {
-  ScrollView,
-  Text,
-  StyleSheet,
-  View,
-  Image,
-  Pressable,
-  Linking,
-} from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import {
+    Image,
+    Linking,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 import { events } from "../../data/events";
 
 export default function EventDetails() {

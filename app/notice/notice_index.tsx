@@ -1,82 +1,81 @@
-import React from "react";
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Pressable,
   Alert,
   Linking,
   Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
-// 🔁 ei line ta change:
-import * as FileSystem from "expo-file-system/legacy"; // ✅ legacy API
-import * as Sharing from "expo-sharing";
-
 import {
-  upcomingNotices,
-  recentNotices,
   importantLinks,
-} from "../../data//notice"; // 👈 path adjust korle korba
+  recentNotices,
+  upcomingNotices,
+} from "../../data/notice";
+
+import { BackHeader } from "@/src/components/BackHeader";
 
 export default function NoticeScreen() {
   // PDF download + share
-const downloadPdf = async (url: string, fileName: string) => {
-  try {
-    if (!url) {
-      Alert.alert("Error", "No file URL available.");
-      return;
+  const downloadPdf = async (url: string, fileName: string) => {
+    try {
+      if (!url) {
+        Alert.alert("Error", "No file URL available.");
+        return;
+      }
+
+      // Web: open in new tab
+      if (Platform.OS === "web") {
+        Linking.openURL(url).catch(() => {
+          Alert.alert("Error", "Unable to open the PDF link.");
+        });
+        return;
+      }
+
+      // Native: legacy FileSystem + Sharing
+      const safeName = fileName || "file.pdf";
+      const fileUri = FileSystem.documentDirectory + safeName;
+
+      const { uri } = await FileSystem.downloadAsync(url, fileUri);
+      console.log("✅ Downloaded to:", uri);
+
+      const canShare = await Sharing.isAvailableAsync();
+      if (canShare) {
+        await Sharing.shareAsync(uri);
+      } else {
+        Alert.alert("Downloaded", "File downloaded to app documents folder.");
+      }
+    } catch (error) {
+      console.log("❌ PDF download error:", error);
+      Alert.alert("Error", "Failed to download the PDF file.");
     }
-
-    // 🌐 Web: just open in new tab (browser nijera download/preview korbe)
-    if (Platform.OS === "web") {
-      Linking.openURL(url).catch(() => {
-        Alert.alert("Error", "Unable to open the PDF link.");
-      });
-      return;
-    }
-
-    // 📱 Native (Android/iOS): use legacy FileSystem + Sharing
-    const safeName = fileName || "file.pdf";
-    const fileUri = FileSystem.documentDirectory + safeName;
-
-    const { uri } = await FileSystem.downloadAsync(url, fileUri);
-    console.log("✅ Downloaded to:", uri);
-
-    const canShare = await Sharing.isAvailableAsync();
-    if (canShare) {
-      await Sharing.shareAsync(uri);
-    } else {
-      Alert.alert("Downloaded", "File downloaded to app documents folder.");
-    }
-  } catch (error) {
-    console.log("❌ PDF download error:", error);
-    Alert.alert("Error", "Failed to download the PDF file.");
-  }
-};
-
+  };
 
   // link press handler
-const handleLinkPress = (link: any) => {
-  if (!link.url) {
-    Alert.alert("Coming Soon", "This link is not active yet.");
-    return;
-  }
+  const handleLinkPress = (link: any) => {
+    if (!link.url) {
+      Alert.alert("Coming Soon", "This link is not active yet.");
+      return;
+    }
 
-  if (link.type === "PDF") {
-    downloadPdf(link.url, link.fileName || `${link.title}.pdf`);
-  } else {
-    Linking.openURL(link.url).catch(() => {
-      Alert.alert("Error", "Unable to open the link.");
-    });
-  }
-};
-
+    if (link.type === "PDF") {
+      downloadPdf(link.url, link.fileName || `${link.title}.pdf`);
+    } else {
+      Linking.openURL(link.url).catch(() => {
+        Alert.alert("Error", "Unable to open the link.");
+      });
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
+        <BackHeader title="" />
+
         <Text className="" style={styles.title}>
           University Notices 📰
         </Text>

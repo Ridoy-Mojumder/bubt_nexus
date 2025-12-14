@@ -1,20 +1,24 @@
-import React, { useState } from "react";
+import { BackHeader } from "@/src/components/BackHeader";
+import { useState } from "react";
 import {
+  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
-  View,
   TextInput,
   TouchableOpacity,
-  Dimensions,
+  View,
 } from "react-native";
 import { studentsResults } from "../../data/studentsResults";
 
-const { height, width } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
+
+type StudentResult = (typeof studentsResults)[number];
+type SubjectResult = StudentResult["results"][number];
 
 export default function Results() {
   const [searchId, setSearchId] = useState("");
-  const [student, setStudent] = useState(null);
+  const [student, setStudent] = useState<StudentResult | null>(null);
 
   const handleSearch = () => {
     const cleanedId = searchId.trim().toUpperCase();
@@ -27,6 +31,8 @@ export default function Results() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
+        <BackHeader title="" />
+
         <Text style={styles.title}>🎓 Student Exam Results</Text>
 
         {/* Search Box */}
@@ -54,8 +60,12 @@ export default function Results() {
             {/* Summary */}
             <View style={styles.summaryCard}>
               <Text style={styles.summaryTitle}>📘 Summary</Text>
-              <Text style={styles.summaryText}>Overall GPA: {student.overallGPA}</Text>
-              <Text style={styles.summaryText}>Best Subject: {student.bestSubject}</Text>
+              <Text style={styles.summaryText}>
+                Overall GPA: {student.overallGPA}
+              </Text>
+              <Text style={styles.summaryText}>
+                Best Subject: {student.bestSubject}
+              </Text>
               <Text style={styles.summaryText}>
                 Needs Improvement: {student.improvementSubject}
               </Text>
@@ -63,7 +73,7 @@ export default function Results() {
 
             {/* Individual Results */}
             <Text style={styles.sectionTitle}>📚 Subject-wise Results</Text>
-            {student.results.map((item, index) => (
+            {student.results.map((item: SubjectResult, index: number) => (
               <View key={index} style={styles.card}>
                 <Text style={styles.subject}>{item.subject}</Text>
                 <Text style={styles.grade}>Grade: {item.grade}</Text>
@@ -79,7 +89,9 @@ export default function Results() {
           </>
         ) : (
           searchId.length > 0 && (
-            <Text style={styles.notFound}>❌ No student found with ID "{searchId}"</Text>
+            <Text style={styles.notFound}>
+              ❌ No student found with ID "{searchId}"
+            </Text>
           )
         )}
       </View>
@@ -145,7 +157,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     elevation: 3,
   },
-  summaryTitle: { fontSize: 18, fontWeight: "800", color: "#E91E63", marginBottom: 8 },
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#E91E63",
+    marginBottom: 8,
+  },
   summaryText: { fontSize: 15, fontWeight: "600", marginVertical: 2 },
 
   sectionTitle: {

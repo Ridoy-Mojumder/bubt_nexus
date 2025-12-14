@@ -1,6 +1,6 @@
 // app/auth/sign-up.tsx
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Href, useRouter } from "expo-router";
+import { useState } from "react";
 import {
   Alert,
   Platform,
@@ -29,7 +29,7 @@ import {
 
 type Role = "student" | "teacher" | "admin";
 
-// optional: hard-coded admin secret (poro jodi env theke nebo)
+// optional: hard-coded admin secret
 const ADMIN_SECRET = "ADMIN-1234";
 
 export default function SignUp() {
@@ -140,28 +140,31 @@ export default function SignUp() {
       await updateProfile(user, { displayName: trimmedName });
       console.log("✅ Profile updated");
 
+      // IMPORTANT: field names match UserProfile in AuthContext
       const baseData: any = {
-        name: trimmedName,
+        uid: user.uid,
+        fullName: trimmedName,
         email: trimmedEmail,
         role,
         createdAt: new Date().toISOString(),
+
+        // profile image placeholder (can be updated later)
+        photoURL: "",
       };
 
       if (role === "student") {
         baseData.intake = intake.trim();
         baseData.section = section.trim();
         baseData.department = department.trim();
-        baseData.studentID = await generateStudentID();
-        console.log("🎓 Generated student ID:", baseData.studentID);
+        baseData.studentId = await generateStudentID(); // note: studentId
+        console.log("🎓 Generated student ID:", baseData.studentId);
       } else if (role === "teacher") {
-        baseData.teacherID = teacherID.trim();
+        baseData.teacherId = teacherID.trim(); // note: teacherId
         baseData.subject = subject.trim();
         baseData.department = department.trim();
       } else if (role === "admin") {
-        // NOTE: adminKey DB te store kora lagbe kina sheta tomar choice,
-        // beshi secure korte chaile sudhu officeID, role r email rakhlei hoy.
-        baseData.officeID = officeID.trim();
-        baseData.isSuperAdmin = true;
+        baseData.officeId = officeID.trim(); // note: officeId
+        baseData.adminSecretKey = adminKey.trim();
       }
 
       await saveUserToFirestore(user.uid, baseData);
@@ -169,7 +172,7 @@ export default function SignUp() {
 
       const msg =
         role === "student"
-          ? `Account created! Your Student ID: ${baseData.studentID}`
+          ? `Account created! Your Student ID: ${baseData.studentId}`
           : "Account created!";
 
       if (Platform.OS === "web") {
@@ -179,7 +182,7 @@ export default function SignUp() {
       }
 
       console.log("➡️ Navigating to sign-in...");
-      router.replace("sign-in");
+      router.replace("/auth/sign-in" as Href);
     } catch (err: any) {
       console.log("❌ SignUp Error:", err?.code, err?.message ?? err);
       Alert.alert(
@@ -203,7 +206,7 @@ export default function SignUp() {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container} className="bg-white">
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Create Account</Text>
 
       <Text style={styles.label}>Select Role</Text>
@@ -319,7 +322,7 @@ export default function SignUp() {
         <Text style={{ color: "gray" }}>Already have an account? </Text>
         <Text
           style={{ color: "#ff9a9e", fontWeight: "600" }}
-          onPress={() => router.push("auth/sign-in")}
+          onPress={() => router.push("/auth/sign-in" as Href)}
         >
           Sign In
         </Text>
@@ -345,7 +348,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderColor: "#ff9a9e",
   },
-  active: { backgroundColor: "#ff9a9e", color: "#fff", borderColor: "#ff9a9e" },
+  active: {
+    backgroundColor: "#ff9a9e",
+    color: "#fff",
+    borderColor: "#ff9a9e",
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ff9a9e",
