@@ -19,8 +19,7 @@ export default function Jobs() {
             styles.card,
             pressed && { transform: [{ scale: 0.97 }], shadowOpacity: 0.3 },
           ]}
-          onPress={() => router.push(`/jobs/details?id=${job.id}` as any)}
-
+          onPress={() => router.push(`/jobs/${job.id}`)} // ✅ FIX
         >
           <Text style={styles.jobTitle}>{job.title}</Text>
           <Text style={styles.company}>{job.company}</Text>

@@ -12,7 +12,9 @@ import { jobs } from "../../data/jobs";
 
 export default function JobDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const job = jobs.find((j) => j.id === id);
+
+  // ✅ FIX: id string/number mismatch handle
+  const job = jobs.find((j) => String(j.id) === String(id));
 
   if (!job) return <Text style={styles.notFound}>Job not found</Text>;
 
@@ -45,7 +47,7 @@ export default function JobDetails() {
       {/* Responsibilities */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>🛠️ Responsibilities</Text>
-        {job.responsibilities.map((item, idx) => (
+        {job.responsibilities?.map((item, idx) => (
           <Text key={idx} style={styles.listItem}>
             • {item}
           </Text>
@@ -55,7 +57,7 @@ export default function JobDetails() {
       {/* Skills Required */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>💡 Skills Required</Text>
-        {job.skillsRequired.map((skill, idx) => (
+        {job.skillsRequired?.map((skill, idx) => (
           <Text key={idx} style={styles.listItem}>
             • {skill}
           </Text>
@@ -65,7 +67,7 @@ export default function JobDetails() {
       {/* Perks */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>🎁 Perks / Benefits</Text>
-        {job.perks.map((perk, idx) => (
+        {job.perks?.map((perk, idx) => (
           <Text key={idx} style={styles.listItem}>
             • {perk}
           </Text>
@@ -76,7 +78,7 @@ export default function JobDetails() {
       <View style={styles.section}>
         <Pressable
           style={styles.button}
-          onPress={() => Linking.openURL(job.applyLink)}
+          onPress={() => job.applyLink && Linking.openURL(job.applyLink)}
         >
           <Text style={styles.buttonText}>Apply Now</Text>
         </Pressable>

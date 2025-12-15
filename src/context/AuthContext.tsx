@@ -1,6 +1,12 @@
 import { auth, db } from "@/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, onSnapshot } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import {
   createContext,
   ReactNode,
@@ -46,7 +52,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let unsubProfile: (() => void) | undefined;
 
-    const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      // cleanup previous profile listener when user changes
+      unsubProfile?.();
+      unsubProfile = undefined;
+
+      setLoading(true);
       setUser(firebaseUser);
 
       if (!firebaseUser) {
@@ -57,17 +68,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const ref = doc(db, "users", firebaseUser.uid);
 
-      unsubProfile = onSnapshot(ref, (snap) => {
-        if (snap.exists()) {
-          setProfile({
-            uid: firebaseUser.uid,
-            ...(snap.data() as Omit<UserProfile, "uid">),
-          });
-        } else {
-          setProfile(null);
+      // ✅ AUTO-CREATE PROFILE DOC IF MISSING
+      try {
+        const snap = await getDoc(ref);
+
+        if (!snap.exists()) {
+          await setDoc(
+            ref,
+            {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email ?? "",
+              fullName: firebaseUser.displayName ?? "",
+              role: "student", // default role (change if needed)
+              createdAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
         }
-        setLoading(false);
-      });
+      } catch (e) {
+        // If this fails, it's usually Firestore rules
+        console.log("ensure profile error:", e);
+      }
+
+      // ✅ REALTIME LISTENER
+      unsubProfile = onSnapshot(
+        ref,
+        (snap) => {
+          if (snap.exists()) {
+            setProfile(snap.data() as UserProfile);
+          } else {
+            setProfile(null);
+          }
+          setLoading(false);
+        },
+        (err) => {
+          console.log("profile snapshot error:", err);
+          setProfile(null);
+          setLoading(false);
+        }
+      );
     });
 
     return () => {

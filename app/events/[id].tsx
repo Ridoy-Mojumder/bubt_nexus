@@ -1,20 +1,22 @@
 import { useLocalSearchParams } from "expo-router";
 import {
-    Image,
-    Linking,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Image,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { events } from "../../data/events";
 
 export default function EventDetails() {
-  const { id } = useLocalSearchParams();
-  const event = events.find((e) => e.id === id);
+  const { id } = useLocalSearchParams<{ id: string }>();
 
-  if (!event) return <Text>Event not found</Text>;
+  // ✅ FIX: id string/number mismatch handle
+  const event = events.find((e) => String(e.id) === String(id));
+
+  if (!event) return <Text style={{ padding: 20 }}>Event not found</Text>;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -30,7 +32,7 @@ export default function EventDetails() {
       {/* Speakers */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>🎤 Speakers</Text>
-        {event.speakers.map((speaker, idx) => (
+        {event.speakers?.map((speaker, idx) => (
           <Text key={idx} style={styles.listItem}>
             • {speaker}
           </Text>
@@ -40,7 +42,7 @@ export default function EventDetails() {
       {/* Highlights */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>✨ Highlights</Text>
-        {event.highlights.map((highlight, idx) => (
+        {event.highlights?.map((highlight, idx) => (
           <Text key={idx} style={styles.listItem}>
             • {highlight}
           </Text>
@@ -52,7 +54,9 @@ export default function EventDetails() {
         <Text style={styles.sectionTitle}>📝 Registration</Text>
         <Pressable
           style={styles.button}
-          onPress={() => Linking.openURL(event.registrationLink)}
+          onPress={() =>
+            event.registrationLink && Linking.openURL(event.registrationLink)
+          }
         >
           <Text style={styles.buttonText}>Register Now</Text>
         </Pressable>

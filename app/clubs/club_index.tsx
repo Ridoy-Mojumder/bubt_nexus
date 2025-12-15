@@ -19,12 +19,7 @@ export default function Clubs() {
             styles.card,
             pressed && { transform: [{ scale: 0.97 }], shadowOpacity: 0.3 },
           ]}
-          onPress={() =>
-            router.push({
-              pathname: "/clubs/details" as any,
-              params: { id: club.id },
-            })
-          }
+          onPress={() => router.push(`/clubs/${club.id}`)}   // ✅ FIX
         >
           <Image source={club.profileImage} style={styles.image} />
           <Text style={styles.name}>{club.name}</Text>

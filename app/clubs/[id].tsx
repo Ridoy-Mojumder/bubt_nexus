@@ -1,20 +1,22 @@
 import { useLocalSearchParams } from "expo-router";
 import {
-    Image,
-    Linking,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Image,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { clubs } from "../../data/clubs";
 
 export default function ClubDetails() {
-  const { id } = useLocalSearchParams();
-  const club = clubs.find((c) => c.id === id);
+  const { id } = useLocalSearchParams<{ id: string }>();
 
-  if (!club) return <Text>Club not found</Text>;
+  // ✅ FIX: string/number mismatch handle
+  const club = clubs.find((c) => String(c.id) === String(id));
+
+  if (!club) return <Text style={{ padding: 20 }}>Club not found</Text>;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -34,7 +36,7 @@ export default function ClubDetails() {
       {/* Achievements */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>🏆 Achievements</Text>
-        {club.achievements.map((item, index) => (
+        {club.achievements?.map((item, index) => (
           <Text key={index} style={styles.listItem}>
             • {item}
           </Text>
@@ -47,15 +49,16 @@ export default function ClubDetails() {
         <View style={styles.skillsContainer}>
           <View style={styles.skillBox}>
             <Text style={styles.skillTitle}>Technical Skills</Text>
-            {club.technicalSkills.map((skill, idx) => (
+            {club.technicalSkills?.map((skill, idx) => (
               <Text key={idx} style={styles.skillItem}>
                 • {skill}
               </Text>
             ))}
           </View>
+
           <View style={styles.skillBox}>
             <Text style={styles.skillTitle}>Soft Skills</Text>
-            {club.softSkills.map((skill, idx) => (
+            {club.softSkills?.map((skill, idx) => (
               <Text key={idx} style={styles.skillItem}>
                 • {skill}
               </Text>
@@ -70,13 +73,14 @@ export default function ClubDetails() {
         <View style={styles.linksContainer}>
           <Pressable
             style={styles.linkButton}
-            onPress={() => Linking.openURL(club.socialLinks.linkedin)}
+            onPress={() => club.socialLinks?.linkedin && Linking.openURL(club.socialLinks.linkedin)}
           >
             <Text style={styles.linkText}>LinkedIn</Text>
           </Pressable>
+
           <Pressable
             style={styles.linkButton}
-            onPress={() => Linking.openURL(club.socialLinks.github)}
+            onPress={() => club.socialLinks?.github && Linking.openURL(club.socialLinks.github)}
           >
             <Text style={styles.linkText}>GitHub</Text>
           </Pressable>
@@ -86,8 +90,8 @@ export default function ClubDetails() {
       {/* Contact */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>📞 Contact</Text>
-        <Text style={styles.sectionText}>Email: {club.contact.email}</Text>
-        <Text style={styles.sectionText}>Phone: {club.contact.phone}</Text>
+        <Text style={styles.sectionText}>Email: {club.contact?.email}</Text>
+        <Text style={styles.sectionText}>Phone: {club.contact?.phone}</Text>
       </View>
     </ScrollView>
   );

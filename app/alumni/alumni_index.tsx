@@ -1,5 +1,6 @@
 import { BackHeader } from "@/src/components/BackHeader";
-import { useState } from "react";
+import { useRouter } from "expo-router";
+import { useMemo, useState } from "react";
 import {
   Image,
   Pressable,
@@ -11,20 +12,26 @@ import {
 } from "react-native";
 import { alumniData } from "../../data/alumniData";
 
-export default function Alumni({ navigation }: { navigation: any }) {
+export default function Alumni() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSector, setSelectedSector] = useState("All");
 
   const sectors = ["All", "Tech", "Marketing", "Management", "Engineering"];
 
-  const filteredAlumni = alumniData.filter((alumni) => {
-    const matchesSector =
-      selectedSector === "All" || alumni.sector === selectedSector;
-    const matchesSearch = alumni.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return matchesSector && matchesSearch;
-  });
+  const filteredAlumni = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+
+    return alumniData.filter((alumni) => {
+      const matchesSector =
+        selectedSector === "All" || alumni.sector === selectedSector;
+
+      const matchesSearch =
+        q.length === 0 || alumni.name.toLowerCase().includes(q);
+
+      return matchesSector && matchesSearch;
+    });
+  }, [searchQuery, selectedSector]);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -43,9 +50,9 @@ export default function Alumni({ navigation }: { navigation: any }) {
 
         {/* Sector Filter */}
         <View style={styles.sectorContainer}>
-          {sectors.map((sector, i) => (
+          {sectors.map((sector) => (
             <Pressable
-              key={i}
+              key={sector}
               style={[
                 styles.sectorButton,
                 selectedSector === sector && styles.sectorButtonActive,
@@ -70,9 +77,7 @@ export default function Alumni({ navigation }: { navigation: any }) {
           <Pressable
             key={alumni.id}
             style={styles.card}
-            onPress={() =>
-              navigation.navigate("AlumniProfile", { alumniId: alumni.id })
-            }
+            onPress={() => router.push(`/alumni/${alumni.id}`)} // ✅ FIX
           >
             <Image source={{ uri: alumni.photo }} style={styles.photo} />
             <Text style={styles.name}>{alumni.name}</Text>

@@ -1,12 +1,6 @@
 import { BackHeader } from "@/src/components/BackHeader";
 import { useRouter } from "expo-router";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-} from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text } from "react-native";
 import { events } from "../../data/events";
 
 export default function Events() {
@@ -25,12 +19,7 @@ export default function Events() {
             styles.card,
             pressed && { transform: [{ scale: 0.97 }], shadowOpacity: 0.3 },
           ]}
-          onPress={() =>
-            router.push({
-              pathname: "/events/details" as any,
-              params: { id: event.id },
-            })
-          }
+          onPress={() => router.push(`/events/${event.id}`)} // ✅ FIX
         >
           <Image source={event.image} style={styles.image} />
           <Text style={styles.eventTitle}>{event.title}</Text>

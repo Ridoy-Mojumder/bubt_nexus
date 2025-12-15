@@ -1,3 +1,5 @@
+import { BackHeader } from "@/src/components/BackHeader";
+import { useLocalSearchParams } from "expo-router";
 import {
   Image,
   Linking,
@@ -9,34 +11,24 @@ import {
 } from "react-native";
 import { alumniData } from "../../data/alumniData";
 
-type Alumni = (typeof alumniData)[number];
+export default function AlumniProfile() {
+  const { id } = useLocalSearchParams<{ id: string }>();
 
-type RouteParams = {
-  alumniId: Alumni["id"];
-};
-
-type Props = {
-  route: { params: RouteParams };
-  navigation: { goBack: () => void };
-};
-
-export default function AlumniProfile({ route, navigation }: Props) {
-  const { alumniId } = route.params;
-  const alumni = alumniData.find((a) => a.id === alumniId);
+  // ✅ FIX: string/number mismatch safe
+  const alumni = alumniData.find((a) => String(a.id) === String(id));
 
   if (!alumni) {
     return (
       <View style={styles.notFound}>
         <Text style={styles.notFoundText}>Alumni not found</Text>
-        <Pressable style={styles.backButton} onPress={navigation.goBack}>
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </Pressable>
       </View>
     );
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <BackHeader title="" />
+
       <Image source={{ uri: alumni.photo }} style={styles.photo} />
       <Text style={styles.name}>{alumni.name}</Text>
       <Text style={styles.details}>
@@ -51,7 +43,7 @@ export default function AlumniProfile({ route, navigation }: Props) {
 
       <Text style={styles.skillsTitle}>💡 Skills</Text>
       <View style={styles.skillsContainer}>
-        {alumni.skills.map((skill, i) => (
+        {alumni.skills?.map((skill, i) => (
           <Text key={i} style={styles.skillBadge}>
             {skill}
           </Text>
@@ -60,14 +52,14 @@ export default function AlumniProfile({ route, navigation }: Props) {
 
       <Pressable
         style={styles.contactButton}
-        onPress={() => Linking.openURL(alumni.linkedin)}
+        onPress={() => alumni.linkedin && Linking.openURL(alumni.linkedin)}
       >
         <Text style={styles.contactButtonText}>Connect via LinkedIn</Text>
       </Pressable>
 
       <Pressable
         style={[styles.contactButton, styles.emailButton]}
-        onPress={() => Linking.openURL(`mailto:${alumni.email}`)}
+        onPress={() => alumni.email && Linking.openURL(`mailto:${alumni.email}`)}
       >
         <Text style={styles.contactButtonText}>Send Email</Text>
       </Pressable>
@@ -80,7 +72,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     backgroundColor: "#FFF8F8",
-    flexGrow: 1, // instead of minHeight: "100vh"
+    flexGrow: 1,
   },
   photo: { width: 120, height: 120, borderRadius: 60, marginBottom: 15 },
   name: {
@@ -149,11 +141,4 @@ const styles = StyleSheet.create({
     color: "#ff9a9e",
     marginBottom: 15,
   },
-  backButton: {
-    backgroundColor: "#ff9a9e",
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 10,
-  },
-  backButtonText: { color: "#fff", fontWeight: "700" },
 });

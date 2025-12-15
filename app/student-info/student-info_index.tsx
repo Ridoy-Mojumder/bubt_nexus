@@ -26,8 +26,8 @@ export default function CRProfileScreen() {
             contentFit="cover"
           />
 
-          <Text style={styles.nameText}>Md. Rakib Hasan</Text>
-          <Text style={styles.emailText}>rakib.hasan@bubt.edu.bd</Text>
+          <Text style={styles.nameText}>Mamun Farazi</Text>
+          <Text style={styles.emailText}>mamun.farazi@bubt.edu.bd</Text>
           <Text style={styles.subText}>Intake 45 · Section 3 · CSE</Text>
         </View>
 
@@ -75,7 +75,7 @@ export default function CRProfileScreen() {
           <View style={styles.crRow}>
             <View style={styles.crCol}>
               <Text style={styles.crLabel}>Full Name</Text>
-              <Text style={styles.crValue}>Md. Rakib Hasan</Text>
+              <Text style={styles.crValue}>Mamun Farazi</Text>
             </View>
             <View style={styles.crCol}>
               <Text style={styles.crLabel}>Intake &amp; Section</Text>
